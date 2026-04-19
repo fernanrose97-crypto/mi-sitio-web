@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedro J. Fernández Rosa — Fotografía</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Courier+Prime:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sunset-gold:#E8924A;--sunset-orange:#D4603A;--sunset-rose:#C4506A;
+  --horizon:#7A3A5A;--dusk:#2E2050;--night:#0E0B2A;--deep-night:#060418;
+  --night-blue:#1A2A6C;--star-blue:#4A7ACC;--moonlight:#8AAEDD;--paper:#F5EDE0;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--deep-night);color:var(--paper);font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:18px;line-height:1.7;overflow-x:hidden;cursor:crosshair;}
+#sky-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:1.1rem 3rem;transition:background 0.5s,border-color 0.5s;border-bottom:0.5px solid transparent;}
+nav.scrolled{background:rgba(6,4,24,0.88);backdrop-filter:blur(12px);border-color:rgba(255,255,255,0.08);}
+.nav-logo{font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.nav-links{display:flex;gap:2.2rem;list-style:none;}
+.nav-links a{font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;text-decoration:none;color:rgba(255,255,255,0.5);transition:color 0.3s;}
+.nav-links a:hover{color:var(--sunset-gold);}
+.hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 3rem 5rem;}
+.hero-content{max-width:700px;opacity:0;transform:translateY(40px);animation:fadeUp 1.2s ease 0.4s forwards;}
+.hero-eyebrow{font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:var(--sunset-gold);margin-bottom:1.5rem;}
+.hero-name{font-size:clamp(3.5rem,6vw,7rem);font-weight:300;line-height:1.0;letter-spacing:-0.01em;margin-bottom:1rem;}
+.hero-name em{font-style:italic;background:linear-gradient(90deg,var(--sunset-gold),var(--sunset-rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-tagline{font-size:1.15rem;font-style:italic;color:rgba(255,255,255,0.5);margin-bottom:2.5rem;max-width:420px;}
+.hero-actions{display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;}
+.btn-primary{display:inline-flex;align-items:center;gap:0.8rem;font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;text-decoration:none;padding:0.85rem 2rem;border:0.5px solid var(--sunset-gold);color:var(--sunset-gold);transition:background 0.3s,color 0.3s;}
+.btn-primary:hover{background:var(--sunset-gold);color:var(--deep-night);}
+.btn-insta{display:inline-flex;align-items:center;gap:0.6rem;font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;text-decoration:none;padding:0.85rem 2rem;border:0.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);transition:all 0.3s;}
+.btn-insta:hover{border-color:var(--moonlight);color:var(--moonlight);}
+.insta-icon{width:15px;height:15px;display:inline-block;border:1.5px solid currentColor;border-radius:4px;position:relative;flex-shrink:0;}
+.insta-icon::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;border:1.2px solid currentColor;border-radius:50%;}
+.insta-icon::after{content:'';position:absolute;top:2px;right:2px;width:2px;height:2px;background:currentColor;border-radius:50%;}
+.scroll-hint{position:absolute;bottom:2rem;right:3rem;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:'Courier Prime',monospace;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.25);animation:pulse 2.5s ease-in-out infinite;}
+.scroll-arrow{width:1px;height:40px;background:linear-gradient(to bottom,transparent,var(--sunset-gold));position:relative;overflow:hidden;}
+.scroll-arrow::after{content:'';position:absolute;top:-100%;left:0;width:100%;height:100%;background:linear-gradient(to bottom,transparent,var(--sunset-gold));animation:slideDown 1.8s ease-in-out infinite;}
+.horizon-divider{position:relative;z-index:10;height:2px;background:linear-gradient(90deg,transparent,var(--sunset-orange),var(--sunset-rose),var(--horizon),var(--night-blue),transparent);}
+section{position:relative;z-index:10;padding:7rem 3rem;}
+.section-label{font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:var(--sunset-gold);display:block;margin-bottom:3rem;}
+.philosophy{background:linear-gradient(to bottom,rgba(14,11,42,0.95),rgba(26,42,108,0.6));text-align:center;}
+.philosophy-quote{font-size:clamp(1.5rem,2.8vw,2.2rem);font-style:italic;font-weight:300;line-height:1.6;margin-bottom:2rem;max-width:800px;margin-left:auto;margin-right:auto;}
+.philosophy-quote span{background:linear-gradient(90deg,var(--sunset-gold),var(--sunset-rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.philosophy-body{font-size:1rem;color:rgba(255,255,255,0.5);max-width:580px;margin:0 auto;line-height:1.9;}
+.projects-section{background:rgba(6,4,24,0.8);padding-top:5rem;padding-bottom:5rem;}
+.projects-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3rem;border-bottom:0.5px solid rgba(255,255,255,0.08);padding-bottom:1.5rem;}
+.projects-title{font-size:2.8rem;font-weight:300;font-style:italic;background:linear-gradient(90deg,var(--sunset-gold),var(--moonlight));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.projects-count{font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.25em;color:rgba(255,255,255,0.25);}
+.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.project-card{position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;}
+.project-bg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3.5rem;transition:transform 0.9s cubic-bezier(0.25,0.46,0.45,0.94);}
+.project-card:hover .project-bg{transform:scale(1.1);}
+.p1{background:linear-gradient(160deg,#D4603A 0%,#7A3A5A 60%,#2E2050 100%);}
+.p2{background:linear-gradient(160deg,#0E0B2A 0%,#1A2A6C 50%,#4A7ACC 100%);}
+.p3{background:linear-gradient(160deg,#C4506A 0%,#7A3A5A 50%,#2E2050 100%);}
+.p4{background:linear-gradient(160deg,#E8924A 0%,#D4603A 40%,#7A3A5A 100%);}
+.p5{background:linear-gradient(160deg,#1A2A6C 0%,#0E0B2A 60%,#060418 100%);}
+.p6{background:linear-gradient(160deg,#4A7ACC 0%,#1A2A6C 50%,#0E0B2A 100%);}
+.project-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(6,4,24,0.97) 0%,rgba(6,4,24,0.3) 50%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:1.5rem;opacity:0;transition:opacity 0.5s ease;}
+.project-card:hover .project-overlay{opacity:1;}
+.project-series{font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--sunset-gold);margin-bottom:0.3rem;}
+.project-name{font-size:1.25rem;font-style:italic;font-weight:300;margin-bottom:0.4rem;}
+.project-desc{font-size:0.78rem;color:rgba(255,255,255,0.5);line-height:1.5;font-family:'Courier Prime',monospace;}
+.project-num{position:absolute;top:1rem;right:1rem;font-family:'Courier Prime',monospace;font-size:9px;color:rgba(255,255,255,0.15);}
+.manifesto-section{background:linear-gradient(to bottom,rgba(26,42,108,0.3),rgba(14,11,42,0.95));}
+.manifesto-grid{display:grid;grid-template-columns:1fr 2fr;gap:5rem;max-width:1100px;margin:0 auto;}
+.manifesto-side{font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.2);writing-mode:vertical-lr;transform:rotate(180deg);height:fit-content;padding-top:0.5rem;}
+.principles{list-style:none;counter-reset:p;}
+.principles li{counter-increment:p;padding:1.5rem 0;border-bottom:0.5px solid rgba(255,255,255,0.07);display:grid;grid-template-columns:2.5rem 1fr;gap:1rem;align-items:start;}
+.principles li::before{content:'0' counter(p);font-family:'Courier Prime',monospace;font-size:9px;color:var(--sunset-gold);padding-top:4px;letter-spacing:0.1em;}
+.p-title{font-size:1.05rem;font-style:italic;display:block;margin-bottom:0.4rem;background:linear-gradient(90deg,var(--paper),rgba(255,255,255,0.7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.p-body{font-size:0.86rem;color:rgba(255,255,255,0.45);line-height:1.75;}
+.contact-section{background:linear-gradient(to bottom,rgba(14,11,42,0.9),#060418);text-align:center;padding:7rem 3rem 6rem;}
+.contact-title{font-size:clamp(2rem,4vw,4rem);font-weight:300;font-style:italic;margin-bottom:0.8rem;}
+.contact-title span{background:linear-gradient(90deg,var(--sunset-gold),var(--sunset-rose),var(--moonlight));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.contact-sub{font-family:'Courier Prime',monospace;font-size:9px;letter-spacing:0.28em;color:rgba(255,255,255,0.25);margin-bottom:4rem;}
+.contact-links{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;}
+.c-link{display:flex;flex-direction:column;align-items:center;gap:0.8rem;text-decoration:none;color:var(--paper);transition:transform 0.3s;}
+.c-link:hover{transform:translateY(-5px);}
+.c-icon{width:52px;height:52px;border-radius:50%;border:0.5px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:border-color 0.3s,background 0.3s;}
+.c-link:hover .c-icon{border-color:var(--sunset-gold);background:rgba(232,146,74,0.12);}
+.c-label{font-family:'Courier Prime',monospace;font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.c-value{font-size:0.88rem;font-style:italic;color:rgba(255,255,255,0.7);}
+.insta-cta{margin-top:3.5rem;display:inline-flex;align-items:center;gap:1.2rem;font-family:'Courier Prime',monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;text-decoration:none;padding:1.1rem 3rem;border:0.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);transition:all 0.4s;position:relative;overflow:hidden;}
+.insta-cta::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--sunset-orange),var(--sunset-rose),var(--horizon),var(--night-blue));opacity:0;transition:opacity 0.4s;}
+.insta-cta:hover::before{opacity:0.15;}
+.insta-cta:hover{border-color:var(--sunset-gold);color:var(--sunset-gold);}
+.insta-cta span{position:relative;z-index:1;}
+.insta-icon-lg{position:relative;z-index:1;width:18px;height:18px;flex-shrink:0;border:1.5px solid currentColor;border-radius:5px;}
+.insta-icon-lg::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border:1.3px solid currentColor;border-radius:50%;}
+.insta-icon-lg::after{content:'';position:absolute;top:2px;right:2px;width:2.5px;height:2.5px;background:currentColor;border-radius:50%;}
+footer{position:relative;z-index:10;padding:1.8rem 3rem;background:#060418;border-top:0.5px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:center;}
+footer span{font-family:'Courier Prime',monospace;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.15);}
+.reveal{opacity:0;transform:translateY(35px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+@keyframes slideDown{0%{top:-100%;}100%{top:100%;}}
+</style>
+</head>
+<body>
+
+<canvas id="sky-canvas"></canvas>
+
+<nav id="main-nav">
+  <span class="nav-logo">PJ · Fernández Rosa</span>
+  <ul class="nav-links">
+    <li><a href="#filosofia">Filosofía</a></li>
+    <li><a href="#proyectos">Proyectos</a></li>
+    <li><a href="#manifiesto">Manifiesto</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow">Fotografía Creativa · España · Est. 1997</p>
+    <h1 class="hero-name">Pedro<br><em>Joaquín</em><br>Fernández Rosa</h1>
+    <p class="hero-tagline">La imagen no captura la realidad. La interroga.</p>
+    <div class="hero-actions">
+      <a href="#proyectos" class="btn-primary"><span>Ver proyectos</span> →</a>
+      <a href="https://www.instagram.com/pj_delarosa_?igsh=MW1ubTMxZ3RoZ2xrbw%3D%3D&utm_source=qr" target="_blank" class="btn-insta">
+        <span class="insta-icon"></span>
+        <span>@pj_delarosa_</span>
+      </a>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<div class="horizon-divider"></div>
+
+<section class="philosophy reveal" id="filosofia">
+  <span class="section-label">§ 01 — Sobre la mirada</span>
+  <p class="philosophy-quote">
+    "Fotografiar es decidir qué merece existir<br>
+    <span>un instante más allá del instante.</span>"
+  </p>
+  <p class="philosophy-body">
+    Pedro Joaquín entiende la fotografía no como acto de documentación, sino como un
+    <em>acto filosófico</em>: el instante detenido no es prueba de lo que fue,
+    sino pregunta sobre lo que podría ser. Su trabajo habita entre la luz cálida del ocaso
+    y la quietud azul de la noche — dos temperaturas de color, dos estados del alma.
+  </p>
+</section>
+
+<section class="projects-section" id="proyectos">
+  <div class="projects-header reveal">
+    <h2 class="projects-title">Proyectos</h2>
+    <span class="projects-count">06 Series · En curso</span>
+  </div>
+  <div class="projects-grid reveal">
+    <div class="project-card">
+      <div class="project-bg p1">🔥</div>
+      <span class="project-num">001</span>
+      <div class="project-overlay">
+        <span class="project-series">Serie I · Sunset</span>
+        <h3 class="project-name">Luz Rota</h3>
+        <p class="project-desc">Retratos bajo luz cálida extrema. El sujeto como materia dorada.</p>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-bg p2">🌙</div>
+      <span class="project-num">002</span>
+      <div class="project-overlay">
+        <span class="project-series">Serie II · Nocturna</span>
+        <h3 class="project-name">Arquitectura del Silencio</h3>
+        <p class="project-desc">Espacios vacíos bañados en azul. La presencia de lo ausente.</p>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-bg p3">🌅</div>
+      <span class="project-num">003</span>
+      <div class="project-overlay">
+        <span class="project-series">Serie III · Transición</span>
+        <h3 class="project-name">Hora Dorada, Hora Muerta</h3>
+        <p class="project-desc">El instante entre el calor y la oscuridad como estado mental.</p>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-bg p4">✨</div>
+      <span class="project-num">004</span>
+      <div class="project-overlay">
+        <span class="project-series">Serie IV · Exceso</span>
+        <h3 class="project-name">Sobreexposición</h3>
+        <p class="project-desc">Edición llevada al límite. El exceso como lenguaje propio.</p>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-bg p5">🔮</div>
+      <span class="project-num">005</span>
+      <div class="project-overlay">
+        <span class="project-series">Serie V · Noche</span>
+        <h3 class="project-name">Dobles Exposiciones</h3>
+        <p class="project-desc">Capas de memoria nocturna superpuestas. Palimpsesto visual.</p>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-bg p6">🌊</div>
+      <span class="project-num">006</span>
+      <div class="project-overlay">
+        <span class="project-series">Serie VI · Profundidad</span>
+        <h3 class="project-name">Organismos</h3>
+        <p class="project-desc">Macro y abstracción bajo luz azul. La naturaleza como cosmos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="manifesto-section reveal" id="manifiesto">
+  <span class="section-label" style="max-width:1100px;margin-left:auto;margin-right:auto;display:block;">§ 02 — Principios</span>
+  <div class="manifesto-grid">
+    <div><span class="manifesto-side">Manifiesto creativo</span></div>
+    <div>
+      <ul class="principles">
+        <li><div><span class="p-title">El exceso como método</span><span class="p-body">La saturación extrema, el contraste quemado, la luz desbordada no son errores. Son decisiones filosóficas. Editar sin miedo es confiar en que la imagen tiene algo que decir más allá de la fidelidad cromática.</span></div></li>
+        <li><div><span class="p-title">Entre el ocaso y la noche</span><span class="p-body">Dos paletas, dos estados del mundo. El naranja cálido del atardecer habla del cuerpo, del calor, de lo efímero. El azul nocturno habla de la mente, de lo eterno, del silencio.</span></div></li>
+        <li><div><span class="p-title">La cámara como instrumento filosófico</span><span class="p-body">Cada disparo es una pequeña ontología. Fotografiar es afirmar que este instante, esta luz, este fragmento del mundo — merece permanecer más allá de su propia duración.</span></div></li>
+        <li><div><span class="p-title">La imperfección como firma</span><span class="p-body">El grano, la distorsión, el movimiento no son ruido. Son la huella de un cuerpo real, una mirada irrepetible, detrás del objetivo.</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="contact-section reveal" id="contacto">
+  <h2 class="contact-title"><span>Hablemos.</span></h2>
+  <p class="contact-sub">Proyectos · Colaboraciones · Locura compartida</p>
+  <div class="contact-links">
+    <a href="mailto:fernanrose_97@hotmail.com" class="c-link">
+      <div class="c-icon">✉</div>
+      <span class="c-label">Email</span>
+      <span class="c-value">fernanrose_97@hotmail.com</span>
+    </a>
+    <a href="https://www.instagram.com/pj_delarosa_?igsh=MW1ubTMxZ3RoZ2xrbw%3D%3D&utm_source=qr" target="_blank" class="c-link">
+      <div class="c-icon">◎</div>
+      <span class="c-label">Instagram</span>
+      <span class="c-value">@pj_delarosa_</span>
+    </a>
+  </div>
+  <br>
+  <a href="https://www.instagram.com/pj_delarosa_?igsh=MW1ubTMxZ3RoZ2xrbw%3D%3D&utm_source=qr" target="_blank" class="insta-cta">
+    <span class="insta-icon-lg"></span>
+    <span>Ver mi trabajo en Instagram → @pj_delarosa_</span>
+  </a>
+</section>
+
+<footer>
+  <span>© Pedro Joaquín Fernández Rosa</span>
+  <span>Fotografía Creativa · España</span>
+</footer>
+
+<script>
+const canvas = document.getElementById('sky-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, stars = [], scrollY = 0, frame = 0;
+
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+for (let i = 0; i < 180; i++) {
+  stars.push({ x: Math.random(), y: Math.random() * 0.6, r: Math.random() * 1.4 + 0.3, twinkle: Math.random() * Math.PI * 2, speed: Math.random() * 0.02 + 0.005 });
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function drawSky() {
+  const maxScroll = document.body.scrollHeight - window.innerHeight;
+  const prog = Math.min(scrollY / Math.max(maxScroll, 1), 1);
+  const grd = ctx.createLinearGradient(0, 0, 0, H);
+  if (prog < 0.4) {
+    const p = prog / 0.4;
+    grd.addColorStop(0, `rgb(${lerp(14,10,p)},${lerp(11,8,p)},${lerp(42,56,p)})`);
+    grd.addColorStop(0.35, `rgb(${lerp(46,30,p)},${lerp(32,42,p)},${lerp(80,108,p)})`);
+    grd.addColorStop(0.65, `rgb(${lerp(122,180,p)},${lerp(58,100,p)},${lerp(90,60,p)})`);
+    grd.addColorStop(0.85, `rgb(${lerp(212,232,p)},${lerp(96,146,p)},${lerp(74,74,p)})`);
+    grd.addColorStop(1,   `rgb(${lerp(212,200,p)},${lerp(96,80,p)},${lerp(58,50,p)})`);
+  } else {
+    const p = (prog - 0.4) / 0.6;
+    grd.addColorStop(0,   `rgb(${lerp(10,6,p)},${lerp(8,4,p)},${lerp(56,24,p)})`);
+    grd.addColorStop(0.4, `rgb(${lerp(30,14,p)},${lerp(42,11,p)},${lerp(108,42,p)})`);
+    grd.addColorStop(0.75,`rgb(${lerp(180,46,p)},${lerp(100,32,p)},${lerp(60,90,p)})`);
+    grd.addColorStop(1,   `rgb(${lerp(200,130,p)},${lerp(80,50,p)},${lerp(50,70,p)})`);
+  }
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  const starAlpha = Math.min(prog * 2.5, 1);
+  stars.forEach(s => {
+    const tw = 0.5 + 0.5 * Math.sin(s.twinkle + frame * s.speed);
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,220,255,${tw * starAlpha * 0.85})`;
+    ctx.fill();
+  });
+
+  if (prog < 0.7) {
+    const horizonAlpha = (1 - prog / 0.7) * 0.35;
+    const hGrd = ctx.createLinearGradient(0, H * 0.6, 0, H);
+    hGrd.addColorStop(0, `rgba(232,146,74,0)`);
+    hGrd.addColorStop(0.5, `rgba(212,96,58,${horizonAlpha})`);
+    hGrd.addColorStop(1, `rgba(180,70,50,${horizonAlpha * 0.5})`);
+    ctx.fillStyle = hGrd;
+    ctx.fillRect(0, H * 0.6, W, H * 0.4);
+  }
+}
+
+function loop() {
+  frame++;
+  ctx.clearRect(0, 0, W, H);
+  drawSky();
+  requestAnimationFrame(loop);
+}
+loop();
+
+window.addEventListener('scroll', () => {
+  scrollY = window.scrollY;
+  const nav = document.getElementById('main-nav');
+  if (scrollY > 60) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
+});
+
+const reveals = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.12 });
+reveals.forEach(r => obs.observe(r));
+</script>
+</body>
+</html>
